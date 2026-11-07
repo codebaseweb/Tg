@@ -11,7 +11,7 @@ else:
     model = None
 
 async def get_ai_response(prompt: str) -> str:
-    """Функция запроса к искусственному интеллекту"""
+    """Функция запроса к  искусственному интеллекту"""
     if not model:
         return "Ошибка: Ключ GEMINI_API_KEY не настроен на сервере."
     
