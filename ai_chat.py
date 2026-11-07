@@ -1,12 +1,11 @@
 import os
 import google.generativeai as genai
 
-# Получаем ключ Google API из переменных окружения Railway
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
-    # Используем актуальную модель
+    # Используем стабильную модель gemini-pro
     model = genai.GenerativeModel('gemini-pro')
 else:
     model = None
