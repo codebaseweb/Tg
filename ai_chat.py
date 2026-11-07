@@ -1,22 +1,34 @@
 import os
-import google.generativeai as genai
+import requests
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-    # Используем стабильную модель gemini-pro
-    model = genai.GenerativeModel('gemini-1.5-flash')
-else:
-    model = None
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 async def get_ai_response(prompt: str) -> str:
-    """Функция запроса к  искусственному интеллекту"""
-    if not model:
-        return "Ошибка: Ключ GEMINI_API_KEY не настроен на сервере."
+    """Функция запроса к Groq (Llama 3)"""
+    if not GROQ_API_KEY:
+        return "Ошибка: Ключ GROQ_API_KEY не настроен на сервере."
+    
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "llama-3.3-70b-versatile",  # Быстрая и мощная бесплатная модель
+        "messages": [
+            {"role": "user", "content": prompt}
+        ]
+    }
     
     try:
-        response = model.generate_content(prompt)
-        return response.text
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        data = response.json()
+        
+        if response.status_code == 200:
+            return data["choices"][0]["message"]["content"]
+        else:
+            error_msg = data.get("error", {}).get("message", "Неизвестная ошибка")
+            return f"Ошибка Groq: {error_msg}"
+            
     except Exception as e:
         return f"Произошла ошибка при обращении к ИИ: {e}"
