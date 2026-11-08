@@ -3,6 +3,7 @@ from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 import ai_chat
+import rpg_game
 
 TOKEN = os.getenv("TOKEN")
 
