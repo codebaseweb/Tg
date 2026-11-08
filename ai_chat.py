@@ -14,7 +14,7 @@ async def get_ai_response(prompt: str) -> str:
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "llama-3.1-70b-versatile",  # Быстрая и мощная бесплатная модель
+        "model": "openai/gpt-oss-120b",  # Быстрая и мощная бесплатная модель
         "messages": [
             {"role": "user", "content": prompt}
         ]
