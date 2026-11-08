@@ -23,17 +23,22 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Распределение сообщений от пользователя"""
     text = update.message.text
-    user_id = update.message.from_user.id
+    user_name = update.message.from_user.first_name or "Путешественник"
 
     if text == "🤖 ИИ Чат":
-        await update.message.reply_text("Режим ИИ активирован! Напиши свой вопрос.")
+        await update.message.reply_text(
+            "Режим ИИ активирован! Напиши свой вопрос."
+        )
     elif text == "🎮 RPG Игра":
-        response = rpg_game.start_game(user_id)
-        await update.message.reply_text(response)
+        # При первом нажатии на кнопку RPG автоматически запускаем сброс/старт игры
+        response = await rpg_game.handle_rpg_action("/start_rpg", user_name=user_name)
+        await update.message.reply_text(response, parse_mode="Markdown")
+        
     else:
-        # Если это не кнопка, проверяем, в каком режиме пользователь, или отправляем в ИИ
-        ai_response = await ai_chat.get_ai_response(text)
-        await update.message.reply_text(ai_response)
+        # Здесь определяем, куда отправлять обычный текст пользователя
+        # Например, если ты хочешь, чтобы весь свободный текст вне кнопок шел в RPG:
+        response = await rpg_game.handle_rpg_action(text, user_name=user_name)
+        await update.message.reply_text(response, parse_mode="Markdown")
 
 def main():
     if not TOKEN:
