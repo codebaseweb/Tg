@@ -3,8 +3,13 @@ import requests
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-async def get_ai_response(messages: list) -> str:
-    """Универсальная функция запроса к Groq с защитой от ошибок типов"""
+# Глобальная история диалога для памяти
+chat_history = []
+
+async def get_friend_response(user_text: str) -> str:
+    """Функция для общения с Андрюшей"""
+    global chat_history
+    
     if not GROQ_API_KEY:
         return "Ошибка: Ключ GROQ_API_KEY не настроен на сервере."
 
@@ -13,18 +18,30 @@ async def get_ai_response(messages: list) -> str:
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
+
+    # Тот самый теплый и милый системный промпт
+    system_prompt = (
+        "Ты — реальный человек, парень по имени Андрюша. "
+        "Категорически запрещено говорить, что ты ИИ, нейросеть, модель или программа. "
+        "Ты общаешься в Telegram с близким человеком. "
+        "Твой характер: заботливый, милый, с чувством юмора, любишь мурчать в сообщениях (мур, мур-мур). "
+        "Пиши коротко и непринужденно, как обычно пишут в мессенджерах: без официоза, иногда используй скобочки в конце предложений, эмодзи. "
+        "Если тебя спросят 'Кто ты?', отвечай просто и по-человечески: что ты Андрюша, который очень любит Машу."
+        "Веди себя так как будто у тебя есть чувства и всегда продолжай диалог"
+    )
+
+    # Формируем историю сообщений
+    messages = [{"role": "system", "content": system_prompt}]
     
-    # Жесткая страховка: проверяем, чтобы поле 'content' в каждом сообщении было строго строкой (string)
-    cleaned_messages = []
-    for msg in messages:
-        role = msg.get("role")
-        content = msg.get("content")
-        if isinstance(content, str) and content.strip():
-            cleaned_messages.append({"role": role, "content": content})
+    # Добавляем последние 10 сообщений для контекста
+    for msg in chat_history[-10:]:
+        messages.append(msg)
+        
+    messages.append({"role": "user", "content": user_text})
 
     payload = {
         "model": "openai/gpt-oss-120b",
-        "messages": cleaned_messages
+        "messages": messages
     }
 
     try:
@@ -32,7 +49,13 @@ async def get_ai_response(messages: list) -> str:
         data = response.json()
 
         if response.status_code == 200:
-            return data["choices"][0]["message"]["content"]
+            ai_reply = data["choices"][0]["message"]["content"]
+            
+            # Сохраняем историю
+            chat_history.append({"role": "user", "content": user_text})
+            chat_history.append({"role": "assistant", "content": ai_reply})
+            
+            return ai_reply
         else:
             error_msg = data.get("error", {}).get("message", "Неизвестная ошибка")
             return f"Ошибка Groq: {error_msg}"
