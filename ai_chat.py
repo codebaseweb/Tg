@@ -21,6 +21,7 @@ async def get_ai_response(prompt: str) -> str:
     payload = {
         "model": "openai/gpt-oss-120b",  # Быстрая и мощная бесплатная модель
         "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": prompt}
         ]
     }
