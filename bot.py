@@ -5,34 +5,31 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 # Подключаем твои модули
 import ai_chat
 import rpg_game
+import ai_friend
 
 # Безопасно получаем токен из настроек Railway
 TOKEN = os.getenv("TOKEN")
-
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Главное меню с кнопками"""
-    keyboard = [
-        ["🤖 ИИ Чат", "🎮 RPG Игра"]
-    ]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    await update.message.reply_text(
-        "Привет! Я твой многофункциональный бот. Выбери режим ниже:",
-        reply_markup=reply_markup
-    )
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Распределение сообщений от пользователя"""
     text = update.message.text
     user_name = update.message.from_user.first_name or "Путешественник"
 
+    # 1. Если нажата кнопка ИИ Чат
     if text == "🤖 ИИ Чат":
-        await update.message.reply_text(
-            "Режим ИИ активирован! Напиши свой вопрос."
-        )
+        await update.message.reply_text("Андрюша на связи! 🐾 Напиши мне что-нибудь.")
+        
+    # 2. Если нажата кнопка RPG Игра
     elif text == "🎮 RPG Игра":
-        # При первом нажатии на кнопку RPG автоматически запускаем сброс/старт игры
         response = await rpg_game.handle_rpg_action("/start_rpg", user_name=user_name)
         await update.message.reply_text(response, parse_mode="Markdown")
+        
+    # 3. Всё остальное (обычный текст, который ты пишешь в чате)
+    else:
+        # Здесь сообщения летят к нашему милому Андрюше
+        response = await ai_friend.handle_friend_chat(text)
+        await update.message.reply_text(response)
+
         
     else:
         # Здесь определяем, куда отправлять обычный текст пользователя
