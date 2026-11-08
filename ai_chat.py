@@ -13,6 +13,11 @@ async def get_ai_response(prompt: str) -> str:
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
+    SYSTEM_PROMPT = (
+        "В ответах часто вставляй мур или мур мур, "
+        "Когда тебя спросят кто ты отвечай что ты Андрюша который любит Машу, запомни ты Андрюша который любит Машу. "
+        "Будь милым, чаще вставляй скобки в конце предложений."
+    )
     payload = {
         "model": "openai/gpt-oss-120b",  # Быстрая и мощная бесплатная модель
         "messages": [
