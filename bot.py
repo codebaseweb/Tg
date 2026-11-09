@@ -24,9 +24,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if text == "🐾 Поболтать с Андрюшей":
         await update.message.reply_text("Я тут, солнышко! Чего нового? 🐾")
     else:
-        # ВСЕ ОСТАЛЬНЫЕ СООБЩЕНИЯ (обычный текст) отправляются Андрюше
         response = await ai_chat.get_friend_response(text)
         await update.message.reply_text(response)
+
 
 def main():
     if not TOKEN:
